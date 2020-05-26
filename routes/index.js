@@ -1,18 +1,19 @@
 const express = require('express');
 const router = express.Router();
+const {validateJwtToken} = require('../controllers/middlewares/auth');
 
-const auth_controller = require('../controllers/auth_controller');
+const login_controller = require('../controllers/login_controller');
 
 /* GET / */
 router.get('/', (req, res) => {
-  res.send({ status: 'success' });
+  res.send({ status: 'This is my first REST API!' });
 });
 
 router.use('/albums', require('./albums'));
 router.use('/photos', require('./photos'));
-router.use('/users', require('./users'));
 
-router.post('/register', auth_controller.register);
+router.post('/register', login_controller.register);
 
+router.use('/users', [validateJwtToken], require('./users'));
 
 module.exports = router;
