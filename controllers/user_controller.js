@@ -2,29 +2,6 @@ const bcrypt = require('bcrypt');
 const models = require('../models');
 const { matchedData, validationResult } = require('express-validator');
 
-const getAuthenticatedUser = async (req, res) => {
-	// retrieve authenticated user's profile
-	let user = null;
-	try {
-		user = await User.fetchById(req.user.data.id);
-	} catch (err) {
-		res.sendStatus(404);
-		throw err;
-	}
-
-	// send (parts of) user profile to requester
-	res.send({
-		status: 'success',
-		data: {
-			user: {
-				username: user.get('username'),
-				first_name: user.get('first_name'),
-				last_name: user.get('last_name'),
-			},
-		}
-	});
-}
-
 const index = async (req, res) => {
 	const allTheUsers = await models.User.fetchAll();
 
@@ -93,7 +70,6 @@ const store = async (req, res) => {
 }
 
 module.exports = {
-	getAuthenticatedUser,
 	index,
 	show,
 	store,

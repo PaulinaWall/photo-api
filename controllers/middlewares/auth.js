@@ -1,5 +1,3 @@
-const jwt = require('jsonwebtoken');
-const { getTokenFromHeaders } = require('../login_controller');
 const { User } = require('../../models');
 
 const basic = async (req, res, next) => {
@@ -21,7 +19,7 @@ const basic = async (req, res, next) => {
 
 	const [email, password] = decodedPayload.split(':');
 
-	const user = await User.login(email, password);
+	const user = await new User({email, password}).fetch({require: false});
 	if (!user) {
 		res.status(401).send({
 			status: 'fail',
@@ -33,31 +31,6 @@ const basic = async (req, res, next) => {
 	next();
 }
 
-const validateJwtToken = (req, res, next) => {
-	const token = getTokenFromHeaders(req);
-	if (!token) {
-		res.status(401).send({
-			status: 'fail',
-			data: 'No token found in request headers.',
-		});
-		return;
-	}
-
-	let payload = null;
-	try {
-		payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-	} catch (err) {
-		res.status(403).send({
-			status: 'fail',
-			data: 'Authentication Failed.',
-		});
-		throw err;
-	}
-	req.user = payload;
-	next();
-}
-
 module.exports = {
 	basic,
-	validateJwtToken,
 }

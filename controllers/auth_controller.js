@@ -1,15 +1,10 @@
 const bcrypt = require('bcrypt');
 const { matchedData, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
-const models = require('../models');
+const { User } = require('../models');
 
-/**
- * Issue a access-token and a refresh-token for a user
- *
- * POST /login
- */
 const login = async (req, res) => {
-	const user = await models.User.login(req.body.username, req.body.password);
+	const user = await User.login(req.body.username, req.body.password);
 	if (!user) {
 		res.status(401).send({
 			status: 'fail',
@@ -27,23 +22,20 @@ const login = async (req, res) => {
 		},
 	};
 
-	// sign payload and get access-token
-	const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_LIFETIME || '1d' });
+
+	const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_LIFETIME || '1h' });
+
+	const refresh_token = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_LIFETIME || '1w' });
 
 	res.send({
 		status: 'success',
 		data: {
 			access_token,
+			refresh_token,
 		},
 	});
 }
 
-/**
- * Issue a new access-token using a refresh-token
- *
- * POST /refresh
- */
-/*
 const refresh = (req, res) => {
 	const token = getTokenFromHeaders(req);
 	if (!token) {
@@ -55,18 +47,14 @@ const refresh = (req, res) => {
 	}
 
 	try {
-		// verify token using the refresh token secret
 		const { data } = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
-		// construct new payload
 		const payload = {
 			data,
 		}
 
-		// issue a new token using the access token secret
 		const access_token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_LIFETIME || '1h' });
 
-		// send the access token to the client
 		res.send({
 			status: 'success',
 			data: {
@@ -82,12 +70,7 @@ const refresh = (req, res) => {
 		return;
 	}
 }
-*/
-/**
- * Register account
- *
- * POST /register
- */
+
 const register = async (req, res) => {
 	// Finds the validation errors in this request and wraps them in an object with handy functions
 	const errors = validationResult(req);
@@ -104,7 +87,7 @@ const register = async (req, res) => {
 
 	// generate a hash of `validData.password`
 	try {
-		validData.password = await bcrypt.hash(validData.password, models.User.hashSaltRounds); // hash.salt is returned from bcrypt.hash()
+		validData.password = await bcrypt.hash(validData.password, User.hashSaltRounds); // hash.salt is returned from bcrypt.hash()
 
 	} catch (error) {
 		res.status(500).send({
@@ -115,7 +98,7 @@ const register = async (req, res) => {
 	}
 
 	try {
-		const user = await new models.User(validData).save();
+		const user = await new User(validData).save();
 		console.log("Created new user successfully:", user);
 
 		res.status(201).send({
@@ -154,6 +137,7 @@ const getTokenFromHeaders = (req) => {
 
 module.exports = {
 	login,
+	refresh,
 	register,
 	getTokenFromHeaders,
 }
