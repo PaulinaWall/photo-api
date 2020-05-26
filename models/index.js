@@ -9,14 +9,22 @@ const knex = require('knex')({
 	}
 });
 
+//b6be181be9a014 -- DB_USER
+//ef1e1789 -- DB_PASSWORD
+//eu-cdbr-west-03.cleardb.net -- DB_HOST
+//heroku_4de687699a60598 -- DB_NAME
+
 const bookshelf = require('bookshelf')(knex);
 
 const Album = require('./Album')(bookshelf);
 
 const Photo = require('./Photo')(bookshelf);
 
+const User = require('./User')(bookshelf);
+
 module.exports = {
 	bookshelf,
 	Album,
 	Photo,
+	User,
 };
