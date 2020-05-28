@@ -14,6 +14,7 @@ const createRules = [
 	body('last_name').isLength({ min: 3 }),
 ];
 
+
 module.exports = {
 	createRules,
 }

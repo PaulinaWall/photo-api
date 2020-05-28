@@ -2,24 +2,22 @@ const bcrypt = require('bcrypt');
 const models = require('../models');
 const { matchedData, validationResult } = require('express-validator');
 
+//Get authenticated user
+
 const index = async (req, res) => {
-	const allTheUsers = await models.User.fetchAll();
+	if(!req.user){
+		res.status(401).send({
+			status: 'fail',
+			message: 'Authorization required.',
+		});
+		return;
+	}
 
-  	res.send({
-		status: 'success',
-		data: {
-			users: allTheUsers,
-		}
-	});
-}
-
-const show = async (req, res) => {
-	const user = await new models.User({id: req.params.userId}).fetch({ withRelated: ['photos', 'albums']});
-
+	// send (parts of) user profile to requester
 	res.send({
 		status: 'success',
 		data: {
-			user: user,
+			user: req.user,
 		}
 	});
 }
@@ -69,8 +67,28 @@ const store = async (req, res) => {
 	}
 }
 
+
+const addPhoto = async (req, res) => {
+	try {
+		const photo = await models.Photo.fetchById(req.body.photo_id);
+
+		const album = await models.Album.fetchById(req.body.album.data.id);
+
+		const result = await album.photos().atach(photo);
+
+		res.status(201).send({
+			status: 'success',
+			data: result,
+		})
+
+	} catch (err) {
+		res.sendStatus(404);
+		throw err;
+	}
+}
+
 module.exports = {
 	index,
-	show,
 	store,
+	addPhoto,
 }

@@ -12,4 +12,5 @@ router.get('/:photoId', show);
 //Post photo to database
 router.post('/', photo_validationRules.createRules, store);
 
+
 module.exports = router;
