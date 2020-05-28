@@ -113,6 +113,7 @@ const store = async (req, res) => {
 */
 
 	try{
+
 		const album = await new models.Album(validData).save();
 		res.send({
 			status: 'success',
@@ -129,8 +130,28 @@ const store = async (req, res) => {
 	}
 }
 
+const addPhoto = async (req, res) => {
+	try {
+		const photo = await models.Photo.fetchById(req.body.photo_id);
+
+		const album = await models.Album.fetchById(req.params.albumId);
+
+		const result = await album.photos().attach(photo);
+
+		res.status(201).send({
+			status: 'success',
+			data: result,
+		})
+
+	} catch (err) {
+		res.sendStatus(404);
+		throw err;
+	}
+}
+
 module.exports = {
 	index,
 	show,
 	store,
+	addPhoto,
 }
