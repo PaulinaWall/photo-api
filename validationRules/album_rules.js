@@ -3,9 +3,6 @@ const models = require('../models');
 
 const createRules = [
 	body('title').isLength({ min: 3 }),
-	body('user_id').custom(value => {
-		return models.User.fetchById(value);
-   })
 ];
 
 const addPhotoToAlbumRules = [

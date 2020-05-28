@@ -7,6 +7,6 @@ const userValidationRules = require('../validationRules/user_rules');
 router.get('/', index);
 
 //Store new user to database
-router.post('/', userValidationRules.createRules, store);
+router.post('/register', userValidationRules.createRules, store);
 
 module.exports = router;

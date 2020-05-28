@@ -29,7 +29,7 @@ const store = async (req, res) => {
 	if(!errors.isEmpty()){
 		res.status(422).send({
 			status: 'fail',
-			data: errors.toArray()
+			data: errors.array()
 		});
 		return;
 	}
@@ -67,28 +67,7 @@ const store = async (req, res) => {
 	}
 }
 
-
-const addPhoto = async (req, res) => {
-	try {
-		const photo = await models.Photo.fetchById(req.body.photo_id);
-
-		const album = await models.Album.fetchById(req.body.album.data.id);
-
-		const result = await album.photos().atach(photo);
-
-		res.status(201).send({
-			status: 'success',
-			data: result,
-		})
-
-	} catch (err) {
-		res.sendStatus(404);
-		throw err;
-	}
-}
-
 module.exports = {
 	index,
 	store,
-	addPhoto,
 }

@@ -93,11 +93,12 @@ const store = async (req, res) => {
 	if(!error.isEmpty()){
 		res.status(422).send({
 			status: 'fail',
-			data: error.toArray()
+			data: error.array()
 		});
 		return;
 	}
 
+	console.log('req.user',req.user.attributes.id)
 	const validData = matchedData(req);
 /*
 	try {
@@ -113,8 +114,8 @@ const store = async (req, res) => {
 */
 
 	try{
+		const album = await new models.Album(validData).save({user_id: req.user.attributes.id});
 
-		const album = await new models.Album(validData).save();
 		res.send({
 			status: 'success',
 			data: {
