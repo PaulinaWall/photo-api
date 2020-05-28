@@ -3,7 +3,6 @@ const models = require('../models');
 const { matchedData, validationResult } = require('express-validator');
 
 //Get authenticated user
-
 const index = async (req, res) => {
 	if(!req.user){
 		res.status(401).send({
@@ -36,10 +35,8 @@ const store = async (req, res) => {
 
 	const validData = matchedData(req);
 
-	/*
-	// generate a hash of `validData.password`
 	try {
-		validData.password = await bcrypt.hash(validData.password, models.User.hashSaltRounds); // hash.salt is returned from bcrypt.hash()
+		validData.password = await bcrypt.hash(validData.password, models.User.hashSaltRounds);
 
 	} catch (error) {
 		res.status(500).send({
@@ -48,7 +45,6 @@ const store = async (req, res) => {
 		});
 		throw error;
 	}
-*/
 
 	try{
 		const user = await new models.User(validData).save();
@@ -69,5 +65,5 @@ const store = async (req, res) => {
 
 module.exports = {
 	index,
-	store,
+	store
 }

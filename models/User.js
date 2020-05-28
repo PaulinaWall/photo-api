@@ -8,6 +8,8 @@ module.exports = (bookshelf) => {
 			return this.hasMany('Photo');
 		},
 	}, {
+		hashSaltRounds: 10,
+
 		fetchById(id, fetchOptions = {}) {
 			return new this({ id }).fetch(fetchOptions);
 		},
