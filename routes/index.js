@@ -13,11 +13,12 @@ router.get('/', (req, res) => {
 
 router.post('/login', auth_controller.login);
 
-router.post('/register', [user_rules.createRules], user_controller.store);
+router.post('/register', [user_rules.createRules], user_controller.register);
 
-router.use('/albums', [auth.basic], require('./albums'));
-router.use('/photos', [auth.basic], require('./photos'));
+router.use('/users', [auth.validateJwtToken], require('./users'));
+router.use('/albums', [auth.validateJwtToken], require('./albums'));
+router.use('/photos', [auth.validateJwtToken], require('./photos'));
 
-router.use('/users', [auth.basic], require('./users'));
+
 
 module.exports = router;

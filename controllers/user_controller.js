@@ -3,25 +3,29 @@ const models = require('../models');
 const { matchedData, validationResult } = require('express-validator');
 
 //Get authenticated user
-const index = async (req, res) => {
-	if(!req.user){
-		res.status(401).send({
-			status: 'fail',
-			message: 'Authorization required.',
-		});
-		return;
+const getUser = async (req, res) => {
+	// retrieve authenticated user's profile
+	let user = null;
+	try {
+		user = await models.User.fetchById(req.user.data.id);
+	} catch (err) {
+		res.sendStatus(404);
+		throw err;
 	}
-
-	// send (parts of) user profile to requester
+console.log('user', user);
 	res.send({
 		status: 'success',
 		data: {
-			user: req.user,
+			user: {
+				email: user.get('email'),
+				first_name: user.get('first_name'),
+				last_name: user.get('last_name'),
+			},
 		}
 	});
 }
 
-const store = async (req, res) => {
+const register = async (req, res) => {
 
 	const errors = validationResult(req);
 
@@ -64,6 +68,6 @@ const store = async (req, res) => {
 }
 
 module.exports = {
-	index,
-	store
+	getUser,
+	register
 }

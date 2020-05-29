@@ -2,16 +2,16 @@ const models = require('../models');
 const { matchedData, validationResult } = require('express-validator');
 
 const index = async (req, res) => {
-	if (!req.user) {
-		res.status(401).send({
-			status: 'fail',
-			data: 'Authentication Required.',
-		});
+	let user = null;
+	try {
+		user = await models.User.fetchById(req.user.data.id, { withRelated: 'photos' });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(404);
 		return;
 	}
 
-	await req.user.load('photos');
-	const photos = req.user.related('photos');
+	const photos = user.related('photos');
 
 	res.send({
 		status: 'success',
@@ -22,17 +22,18 @@ const index = async (req, res) => {
 }
 
 const show = async (req, res) => {
-	if (!req.user) {
-		res.status(401).send({
-			status: 'fail',
-			data: 'Authentication Required.',
-		});
+	let user = null;
+	try {
+		user = await models.User.fetchById(req.user.data.id, { withRelated: 'albums' });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(404);
 		return;
 	}
 
 	const photos = await new models.Photo({id: req.params.photoId}).fetch({withRelated: 'albums'});
 
-	if(photos.attributes.user_id === req.user.attributes.id){
+	if(photos.attributes.user_id === req.user.data.id){
 		res.send({
 			status: 'success',
 			data: {
@@ -48,6 +49,15 @@ const show = async (req, res) => {
 }
 
 const store = async (req, res) => {
+	let user = null;
+	try {
+		user = await models.User.fetchById(req.user.data.id, { withRelated: 'albums' });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(404);
+		return;
+	}
+
 	const error = validationResult(req);
 	if(!error.isEmpty()){
 		res.status(422).send({
@@ -60,7 +70,7 @@ const store = async (req, res) => {
 	const validData = matchedData(req);
 
 	try{
-		const photo = await new models.Photo(validData).save();
+		const photo = await new models.Photo(validData).save({user_id: req.user.data.id});
 		res.send({
 			status: 'success',
 			data: {

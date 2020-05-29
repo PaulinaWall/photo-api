@@ -3,17 +3,17 @@ const models = require('../models');
 const { matchedData, validationResult } = require('express-validator');
 
 const index = async (req, res) => {
-	if (!req.user) {
-		res.status(401).send({
-			status: 'fail',
-			data: 'Authentication Required.',
-		});
+	let user = null;
+	try {
+		user = await models.User.fetchById(req.user.data.id, { withRelated: 'albums' });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(404);
 		return;
 	}
 
-	await req.user.load('albums');
-	const albums = req.user.related('albums');
-
+	const albums = user.related('albums');
+	console.log('albums', albums);
 	res.send({
 		status: 'success',
 		data: {
@@ -23,17 +23,18 @@ const index = async (req, res) => {
 }
 
 const show = async (req, res) => {
-	if (!req.user) {
-		res.status(401).send({
-			status: 'fail',
-			data: 'Authentication Required.',
-		});
+	let user = null;
+	try {
+		user = await models.User.fetchById(req.user.data.id, { withRelated: 'albums' });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(404);
 		return;
 	}
 
 	const albums = await new models.Album({id: req.params.albumId}).fetch({withRelated: 'photos'});
 
-	if(albums.attributes.user_id === req.user.attributes.id){
+	if(albums.attributes.user_id === req.user.data.id){
 		res.send({
 			status: 'success',
 			data: {
@@ -49,6 +50,15 @@ const show = async (req, res) => {
 }
 
 const store = async (req, res) => {
+	let user = null;
+	try {
+		user = await models.User.fetchById(req.user.data.id, { withRelated: 'photos' });
+	} catch (err) {
+		console.error(err);
+		res.sendStatus(404);
+		return;
+	}
+
 	const error = validationResult(req);
 	if(!error.isEmpty()){
 		res.status(422).send({
@@ -58,11 +68,10 @@ const store = async (req, res) => {
 		return;
 	}
 
-	console.log('req.user',req.user.attributes.id)
 	const validData = matchedData(req);
 
 	try{
-		const album = await new models.Album(validData).save({user_id: req.user.attributes.id});
+		const album = await new models.Album(validData).save({user_id: req.user.data.id});
 
 		res.send({
 			status: 'success',
@@ -80,6 +89,15 @@ const store = async (req, res) => {
 }
 
 const addPhoto = async (req, res) => {
+	const error = validationResult(req);
+	if(!error.isEmpty()){
+		res.status(422).send({
+			status: 'fail',
+			data: error.array()
+		});
+		return;
+	}
+
 	try {
 		const photo = await models.Photo.fetchById(req.body.photo_id);
 
