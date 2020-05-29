@@ -1,6 +1,33 @@
 const models = require('../models');
-
 const { matchedData, validationResult } = require('express-validator');
+
+const addPhoto = async (req, res) => {
+	const error = validationResult(req);
+	if(!error.isEmpty()){
+		res.status(422).send({
+			status: 'fail',
+			data: error.array()
+		});
+		return;
+	}
+
+	try {
+		const photo = await models.Photo.fetchById(req.body.photo_id);
+
+		const album = await models.Album.fetchById(req.params.albumId);
+
+		const result = await album.photos().attach(photo);
+
+		res.status(201).send({
+			status: 'success',
+			data: result,
+		})
+
+	} catch (err) {
+		res.sendStatus(404);
+		throw err;
+	}
+}
 
 const index = async (req, res) => {
 	let user = null;
@@ -88,37 +115,35 @@ const store = async (req, res) => {
 	}
 }
 
-const addPhoto = async (req, res) => {
-	const error = validationResult(req);
-	if(!error.isEmpty()){
-		res.status(422).send({
-			status: 'fail',
-			data: error.array()
-		});
-		return;
-	}
-
-	try {
-		const photo = await models.Photo.fetchById(req.body.photo_id);
-
-		const album = await models.Album.fetchById(req.params.albumId);
-
-		const result = await album.photos().attach(photo);
-
-		res.status(201).send({
-			status: 'success',
-			data: result,
+const destroy = async (req, res) => {
+	try{
+		const album = await new models.Album({
+			id: req.params.albumId,
+			user_id: req.user.data.id
 		})
+		.fetch({ withRelated: 'photos' });
 
-	} catch (err) {
-		res.sendStatus(404);
-		throw err;
+		album.photos().detach();
+		album.destroy().then();
+
+		res.send({
+			status: 'success',
+			message: 'Success deleting album from database!'
+		})
+	} catch(error) {
+		res.status(500).send({
+			status: 'error',
+			message: 'An error was thrown when trying to delete photo from database.',
+		});
+		throw error;
 	}
+
 }
 
 module.exports = {
+	addPhoto,
 	index,
 	show,
 	store,
-	addPhoto,
+	destroy,
 }

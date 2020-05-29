@@ -86,8 +86,34 @@ const store = async (req, res) => {
 	}
 }
 
+const destroy = async (req, res) => {
+	try{
+		const photo = await new models.Photo({
+			id: req.params.photoId,
+			user_id: req.user.data.id
+		})
+		.fetch({ withRelated: 'albums' });
+
+		photo.destroy().then();
+		photo.albums().detach();
+
+		res.send({
+			status: 'success',
+			message: 'Success deleting photo from database!'
+		})
+	} catch(error) {
+		res.status(500).send({
+			status: 'error',
+			message: 'An error was thrown when trying to delete photo from database.',
+		});
+		throw error;
+	}
+
+}
+
 module.exports = {
 	index,
 	show,
 	store,
+	destroy,
 }

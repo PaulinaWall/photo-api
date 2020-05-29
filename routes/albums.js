@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {index, show, store, addPhoto} = require('../controllers/album_controller');
+const {index, show, store, addPhoto, destroy} = require('../controllers/album_controller');
 const album_validationRules = require('../validationRules/album_rules');
 
 //Get all albums
@@ -13,5 +13,7 @@ router.get('/:albumId', show);
 router.post('/', album_validationRules.createRules, store);
 
 router.post('/:albumId/photos', album_validationRules.addPhotoToAlbumRules, addPhoto);
+
+router.delete('/:albumId', destroy);
 
 module.exports = router;
