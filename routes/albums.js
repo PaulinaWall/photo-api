@@ -12,6 +12,6 @@ router.get('/:albumId', show);
 //Store new album
 router.post('/', album_validationRules.createRules, store);
 
-router.post('/:albumId', album_validationRules.addPhotoToAlbumRules, addPhoto);
+router.post('/:albumId/photos', album_validationRules.addPhotoToAlbumRules, addPhoto);
 
 module.exports = router;

@@ -30,7 +30,7 @@ const show = async (req, res) => {
 		return;
 	}
 
-	const photos = await new models.Photo({id: req.params.photoId}).fetch();
+	const photos = await new models.Photo({id: req.params.photoId}).fetch({withRelated: 'albums'});
 
 	if(photos.attributes.user_id === req.user.attributes.id){
 		res.send({

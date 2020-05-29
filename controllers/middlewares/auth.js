@@ -19,7 +19,7 @@ const basic = async (req, res, next) => {
 
 	const [email, password] = decodedPayload.split(':');
 
-	const user = await new User({email, password}).fetch({require: false});
+	const user = await User.login(email, password);
 	if (!user) {
 		res.status(401).send({
 			status: 'fail',
@@ -27,6 +27,7 @@ const basic = async (req, res, next) => {
 		});
 		return;
 	}
+
 	req.user = user;
 	next();
 }
