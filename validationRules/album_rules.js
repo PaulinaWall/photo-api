@@ -6,12 +6,10 @@ const createRules = [
 ];
 
 const addPhotoToAlbumValidator = async values => {
-	// bail if element value is not a number
 	if (!values.every(Number.isInteger)) {
 		return Promise.reject('Invalid value in array.');
 	}
 
-	// validate that every value exists in database
 	for (let i = 0; i < values.length; i++) {
 		const photo = await models.Photo.fetchById(values[i]);
 

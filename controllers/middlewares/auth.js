@@ -1,39 +1,5 @@
-const { User } = require('../../models');
 const jwt = require('jsonwebtoken');
 const { getTokenFromHeaders } = require('../auth_controller');
-/*
-const basic = async (req, res, next) => {
-	if (!req.headers.authorization) {
-		res.status(401).send({
-			status: 'fail',
-			data: 'Authorization required',
-		});
-		return;
-	}
-
-	const [authSchema, base64Payload] = req.headers.authorization.split(' ');
-
-	if (authSchema.toLowerCase() !== "basic") {
-		next();
-	}
-
-	const decodedPayload = Buffer.from(base64Payload, 'base64').toString('ascii');
-
-	const [email, password] = decodedPayload.split(':');
-
-	const user = await User.login(email, password);
-	if (!user) {
-		res.status(401).send({
-			status: 'fail',
-			data: 'Authorization failed',
-		});
-		return;
-	}
-
-	req.user = user;
-	next();
-}
-*/
 
 const validateJwtToken = (req, res, next) => {
 	const token = getTokenFromHeaders(req);
@@ -45,7 +11,6 @@ const validateJwtToken = (req, res, next) => {
 		return;
 	}
 
-	// Validate token and extract payload
 	let payload = null;
 	try {
 		payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -57,7 +22,6 @@ const validateJwtToken = (req, res, next) => {
 		throw err;
 	}
 
-	// attach payload to req.user
 	req.user = payload;
 
 	next();

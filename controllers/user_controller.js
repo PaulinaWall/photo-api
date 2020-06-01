@@ -2,9 +2,7 @@ const bcrypt = require('bcrypt');
 const models = require('../models');
 const { matchedData, validationResult } = require('express-validator');
 
-//Get authenticated user
 const getUser = async (req, res) => {
-	// retrieve authenticated user's profile
 	let user = null;
 	try {
 		user = await models.User.fetchById(req.user.data.id);
@@ -12,7 +10,6 @@ const getUser = async (req, res) => {
 		res.sendStatus(404);
 		throw err;
 	}
-console.log('user', user);
 	res.send({
 		status: 'success',
 		data: {

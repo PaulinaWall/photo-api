@@ -108,7 +108,6 @@ const destroy = async (req, res) => {
 		});
 		throw error;
 	}
-
 }
 
 module.exports = {

@@ -143,7 +143,7 @@ const destroy = async (req, res) => {
 	} catch(error) {
 		res.status(500).send({
 			status: 'error',
-			message: 'An error was thrown when trying to delete photo from database.',
+			message: 'An error was thrown when trying to delete album from database.',
 		});
 		throw error;
 	}

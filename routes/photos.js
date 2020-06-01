@@ -9,9 +9,10 @@ router.get('/', index);
 //Get photo by id
 router.get('/:photoId', show);
 
-//Post photo to database
+//Store photo to database
 router.post('/', photo_validationRules.createRules, store);
 
+//delete photo from database
 router.delete('/:photoId', destroy);
 
 
