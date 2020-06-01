@@ -11,9 +11,9 @@ router.get('/', (req, res) => {
   res.send({ status: 'Welcome to my first REST API!' });
 });
 
-router.post('/login', auth_controller.login);
-
 router.post('/register', [user_rules.createRules], user_controller.register);
+
+router.post('/login', auth_controller.login);
 
 router.use('/users', [auth.validateJwtToken], require('./users'));
 router.use('/albums', [auth.validateJwtToken], require('./albums'));
